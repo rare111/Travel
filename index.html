@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -37,6 +36,16 @@
         width: 95%;
         max-width: 1400px;
     }
+	select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 6px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 15px;
+    background: white;
+}
+
 
     .form-card {
         background: white;
@@ -185,6 +194,27 @@
         color: #007bff;
         text-align: center;
     }
+	.cal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.cal-btn {
+    background: #333;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 18px;
+}
+
+.cal-btn:hover {
+    background: #555;
+}
+
 
     .entry {
         border-radius: 10px;
@@ -224,7 +254,12 @@
 </style>
 </head>
 
+
 <body>
+<input id="email" type="email" placeholder="Admin email">
+<input id="password" type="password" placeholder="Password">
+<button id="loginBtn">Login</button>
+<button id="logoutBtn">Logout</button>
 
 <div class="header">🌎 California Travel Planner</div>
 
@@ -238,6 +273,9 @@
             <label>Name:</label>
             <input type="text" id="name" required>
 
+            <label>Number:</label>
+            <input type="number" id="number" required>
+
             <label>From date:</label>
             <input type="date" id="fromDate" required>
 
@@ -245,10 +283,64 @@
             <input type="date" id="toDate" required>
 
             <label>Source (California city):</label>
-            <input type="text" id="source" placeholder="Sacramento, CA" required>
+            <select id="source" required>
+                <option value="">Select City</option>
+                <option value="Sacramento">Sacramento</option>
+                <option value="Folsom">Folsom</option>
+                <option value="Sloughhouse">Sloughhouse</option>
+                <option value="San Francisco">San Francisco</option>
+                <option value="San Jose">San Jose</option>
+                <option value="Los Angeles">Los Angeles</option>
+                <option value="San Diego">San Diego</option>
+                <option value="Fresno">Fresno</option>
+                <option value="Stockton">Stockton</option>
+                <option value="Oakland">Oakland</option>
+                <option value="Bakersfield">Bakersfield</option>
+                <option value="Modesto">Modesto</option>
+                <option value="Santa Barbara">Santa Barbara</option>
+                <option value="Riverside">Riverside</option>
+                <option value="Anaheim">Anaheim</option>
+                <option value="Long Beach">Long Beach</option>
+                <option value="Irvine">Irvine</option>
+                <option value="Santa Rosa">Santa Rosa</option>
+                <option value="Redding">Redding</option>
+                <option value="Chico">Chico</option>
+                <option value="Napa">Napa</option>
+                <option value="Vallejo">Vallejo</option>
+                <option value="Fairfield">Fairfield</option>
+                <option value="Elk Grove">Elk Grove</option>
+                <option value="Roseville">Roseville</option>
+            </select>
 
             <label>Destination (California city):</label>
-            <input type="text" id="destination" placeholder="Los Angeles, CA" required>
+            <select id="destination" required>
+                <option value="">Select City</option>
+                <option value="Sacramento">Sacramento</option>
+                <option value="Folsom">Folsom</option>
+                <option value="Sloughhouse">Sloughhouse</option>
+                <option value="San Francisco">San Francisco</option>
+                <option value="San Jose">San Jose</option>
+                <option value="Los Angeles">Los Angeles</option>
+                <option value="San Diego">San Diego</option>
+                <option value="Fresno">Fresno</option>
+                <option value="Stockton">Stockton</option>
+                <option value="Oakland">Oakland</option>
+                <option value="Bakersfield">Bakersfield</option>
+                <option value="Modesto">Modesto</option>
+                <option value="Santa Barbara">Santa Barbara</option>
+                <option value="Riverside">Riverside</option>
+                <option value="Anaheim">Anaheim</option>
+                <option value="Long Beach">Long Beach</option>
+                <option value="Irvine">Irvine</option>
+                <option value="Santa Rosa">Santa Rosa</option>
+                <option value="Redding">Redding</option>
+                <option value="Chico">Chico</option>
+                <option value="Napa">Napa</option>
+                <option value="Vallejo">Vallejo</option>
+                <option value="Fairfield">Fairfield</option>
+                <option value="Elk Grove">Elk Grove</option>
+                <option value="Roseville">Roseville</option>
+            </select>
 
             <div class="buttons">
                 <button type="submit">Available</button>
@@ -260,7 +352,12 @@
     <!-- CALENDAR + MAP -->
     <div class="right-side">
         <div class="calendar-card">
-            <h3 id="calTitle">Your Travel Calendar</h3>
+            <div class="cal-header">
+                <button id="prevMonth" class="cal-btn">&#8592;</button>
+                <h3 id="calTitle">Your Travel Calendar</h3>
+                <button id="nextMonth" class="cal-btn">&#8594;</button>
+            </div>
+
             <div class="calendar-grid" id="calendarGrid"></div>
         </div>
 
@@ -275,16 +372,49 @@
 
 </div>
 
+<div id="output"></div>
+
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
 
-<script>
-let map = L.map('map').setView([37.5, -119.5], 6); // California center
+<!-- IMPORTANT: Your main.js goes here -->
 
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 18
-}).addTo(map);
 
+
+
+<script type="module">
+  // Import the functions you need from the SDKs you need
+  //import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+  //import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-analytics.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  const firebaseConfig = {
+    apiKey: "AIzaSyBfeuiq3fyvlz2kESAwWLpn3g3Go7CbgUo",
+    authDomain: "travel-planner-31a14.firebaseapp.com",
+    projectId: "travel-planner-31a14",
+    storageBucket: "travel-planner-31a14.firebasestorage.app",
+    messagingSenderId: "391355824940",
+    appId: "1:391355824940:web:bdacdad17c635ce1ac8a89",
+    measurementId: "G-23RXD7Y7YR"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+  const auth = firebase.auth();
+</script>
+
+
+<script src="main.js">
+// -------------------------
+// Global variables
+// -------------------------
 let travelEntries = [];
+let currentUser = null;
 let polylines = [];
 let markers = [];
 
@@ -294,8 +424,33 @@ const colors = [
     "#ffc107", "#673ab7", "#009688", "#cddc39", "#ff5722"
 ];
 
+// -------------------------
+// Map initialization
+// -------------------------
+let map = L.map('map').setView([37.5, -119.5], 6);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 18
+}).addTo(map);
+
+// -------------------------
+// Firebase Auth listener
+// -------------------------
+auth.onAuthStateChanged(async user => {
+    currentUser = user || null;
+
+    if (user) {
+        const doc = await db.collection("users").doc(user.uid).get();
+        const data = doc.data();
+        currentUser.role = data ? data.role : "user";
+    }
+});
+
+// -------------------------
+// Geocoding
+// -------------------------
 async function geocode(city) {
-    const url = `https://nominatim.openstreetmap.org/search?format=json&country=United States&state=California&q=${encodeURIComponent(city)}`;
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(city + ", California")}`;
     const response = await fetch(url);
     const data = await response.json();
     if (data.length === 0) return null;
@@ -305,94 +460,9 @@ async function geocode(city) {
     };
 }
 
-function generateCalendar(month, year) {
-    const grid = document.getElementById("calendarGrid");
-    grid.innerHTML = "";
-
-    document.getElementById("calTitle").textContent =
-        new Date(year, month).toLocaleString('default', { month: 'long' }) + " " + year;
-
-    const firstDay = new Date(year, month, 1).getDay();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-    for (let i = 0; i < firstDay; i++) {
-        grid.appendChild(document.createElement("div"));
-    }
-
-    for (let day = 1; day <= daysInMonth; day++) {
-        const cell = document.createElement("div");
-        cell.classList.add("day");
-        cell.textContent = day;
-
-        const cellDate = new Date(year, month, day);
-
-        travelEntries.forEach(entry => {
-            const from = new Date(entry.from);
-            const to = new Date(entry.to);
-
-            if (cellDate >= from && cellDate <= to) {
-                cell.classList.add("highlight");
-
-                const tooltip = document.createElement("div");
-                tooltip.classList.add("tooltip");
-                tooltip.innerHTML =
-                    `<strong>${entry.name}</strong><br>
-                     ${entry.source} → ${entry.destination}<br>
-                     ${entry.from} to ${entry.to}`;
-
-                cell.appendChild(tooltip);
-            }
-        });
-
-        grid.appendChild(cell);
-    }
-}
-
-function renderSidebar() {
-    const list = document.getElementById("entriesList");
-    list.innerHTML = "";
-
-    travelEntries.forEach((entry, index) => {
-        const div = document.createElement("div");
-        div.classList.add("entry");
-
-        const header = document.createElement("div");
-        header.classList.add("entry-header");
-
-        const left = document.createElement("div");
-        const colorDot = document.createElement("span");
-        colorDot.classList.add("color-dot");
-        colorDot.style.backgroundColor = entry.color;
-        left.appendChild(colorDot);
-        left.appendChild(document.createTextNode(entry.name));
-
-        const actions = document.createElement("div");
-        actions.classList.add("entry-actions");
-
-        const editBtn = document.createElement("button");
-        editBtn.textContent = "Edit";
-        editBtn.onclick = () => editEntry(index);
-
-        const delBtn = document.createElement("button");
-        delBtn.textContent = "Delete";
-        delBtn.onclick = () => deleteEntry(index);
-
-        actions.appendChild(editBtn);
-        actions.appendChild(delBtn);
-
-        header.appendChild(left);
-        header.appendChild(actions);
-
-        const info = document.createElement("div");
-        info.textContent = `${entry.source} → ${entry.destination} (${entry.from} to ${entry.to})`;
-
-        div.appendChild(header);
-        div.appendChild(info);
-
-        list.appendChild(div);
-    });
-}
-
+// -------------------------
+// Clear map
+// -------------------------
 function clearMap() {
     polylines.forEach(pl => map.removeLayer(pl));
     markers.forEach(m => map.removeLayer(m));
@@ -400,6 +470,9 @@ function clearMap() {
     markers = [];
 }
 
+// -------------------------
+// Draw all routes
+// -------------------------
 async function drawAllRoutes() {
     clearMap();
 
@@ -440,71 +513,196 @@ async function drawAllRoutes() {
         map.fitBounds(group.getBounds());
     }
 }
+// -------------------------
+// Sidebar rendering
+// -------------------------
+function renderSidebar() {
+    const list = document.getElementById("entriesList");
+    list.innerHTML = "";
 
+    travelEntries.forEach((entry, index) => {
+        const div = document.createElement("div");
+        div.classList.add("entry");
+
+        const header = document.createElement("div");
+        header.classList.add("entry-header");
+
+        const left = document.createElement("div");
+        const colorDot = document.createElement("span");
+        colorDot.classList.add("color-dot");
+        colorDot.style.backgroundColor = entry.color;
+        left.appendChild(colorDot);
+        left.appendChild(document.createTextNode(entry.name));
+
+        const actions = document.createElement("div");
+        actions.classList.add("entry-actions");
+
+        const editBtn = document.createElement("button");
+        editBtn.textContent = "Edit";
+        editBtn.onclick = () => editEntry(index);
+
+        const delBtn = document.createElement("button");
+        delBtn.textContent = "Delete";
+        delBtn.onclick = () => deleteEntry(entry.id);
+
+        actions.appendChild(editBtn);
+        actions.appendChild(delBtn);
+
+        header.appendChild(left);
+        header.appendChild(actions);
+
+        const info = document.createElement("div");
+        info.textContent = `${entry.source} → ${entry.destination} (${entry.from} to ${entry.to})`;
+
+        div.appendChild(header);
+        div.appendChild(info);
+
+        list.appendChild(div);
+    });
+}
+
+// -------------------------
+// Delete entry (Firestore)
+// -------------------------
+async function deleteEntry(id) {
+    await db.collection("travelEntries").doc(id).delete();
+}
+
+// -------------------------
+// Edit entry (load into form)
+// -------------------------
 function editEntry(index) {
     const entry = travelEntries[index];
+
     document.getElementById("name").value = entry.name;
+    document.getElementById("number").value = entry.number;
     document.getElementById("fromDate").value = entry.from;
     document.getElementById("toDate").value = entry.to;
     document.getElementById("source").value = entry.source;
     document.getElementById("destination").value = entry.destination;
-
-    travelEntries.splice(index, 1);
-    renderSidebar();
-    const month = new Date(entry.from).getMonth();
-    const year = new Date(entry.from).getFullYear();
-    generateCalendar(month, year);
-    drawAllRoutes();
 }
 
-function deleteEntry(index) {
-    travelEntries.splice(index, 1);
-    renderSidebar();
-    if (travelEntries.length > 0) {
-        const first = travelEntries[0];
-        const month = new Date(first.from).getMonth();
-        const year = new Date(first.from).getFullYear();
-        generateCalendar(month, year);
-    } else {
-        const now = new Date();
-        generateCalendar(now.getMonth(), now.getFullYear());
+// -------------------------
+// Calendar generation
+// -------------------------
+function generateCalendar(month, year) {
+    const grid = document.getElementById("calendarGrid");
+    grid.innerHTML = "";
+
+    document.getElementById("calTitle").textContent =
+        new Date(year, month).toLocaleString('default', { month: 'long' }) + " " + year;
+
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    for (let i = 0; i < firstDay; i++) {
+        grid.appendChild(document.createElement("div"));
     }
-    drawAllRoutes();
+
+    for (let day = 1; day <= daysInMonth; day++) {
+        const cell = document.createElement("div");
+        cell.classList.add("day");
+        cell.textContent = day;
+
+        const cellDate = new Date(year, month, day);
+
+        travelEntries.forEach(entry => {
+            const from = new Date(entry.from);
+            const to = new Date(entry.to);
+
+            if (cellDate >= from && cellDate <= to) {
+                cell.classList.add("highlight");
+                cell.style.backgroundColor = entry.color;
+                cell.style.color = "white";
+
+                const tooltip = document.createElement("div");
+                tooltip.classList.add("tooltip");
+                tooltip.innerHTML =
+                    `<strong>${entry.name}</strong><br>
+                     ${entry.number}<br>
+                     ${entry.source} → ${entry.destination}<br>
+                     ${entry.from} to ${entry.to}`;
+
+                cell.appendChild(tooltip);
+            }
+        });
+
+        grid.appendChild(cell);
+    }
 }
 
-document.getElementById("travelForm").addEventListener("submit", async function(event) {
+// -------------------------
+// Firestore real-time listener
+// -------------------------
+function subscribeEntries() {
+    db.collection("travelEntries")
+      .orderBy("from")
+      .onSnapshot(snapshot => {
+
+          travelEntries = snapshot.docs.map(doc => ({
+              id: doc.id,
+              ...doc.data()
+          }));
+
+          renderSidebar();
+          drawAllRoutes();
+
+          const now = new Date();
+          generateCalendar(now.getMonth(), now.getFullYear());
+      });
+}
+
+subscribeEntries();
+
+// -------------------------
+// Submit handler (ONLY ONE)
+// -------------------------
+document.getElementById("travelForm").addEventListener("submit", async function (event) {
     event.preventDefault();
 
-    const name = document.getElementById("name").value;
-    const from = document.getElementById("fromDate").value;
-    const to = document.getElementById("toDate").value;
-    const source = document.getElementById("source").value;
-    const destination = document.getElementById("destination").value;
+    const form = this;
 
-    if (!from || !to) return;
+    const entry = {
+        name: form.name.value,
+        number: form.number.value,
+        from: form.fromDate.value,
+        to: form.toDate.value,
+        source: form.source.value,
+        destination: form.destination.value,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        createdBy: currentUser ? currentUser.uid : null,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
 
-    const color = colors[travelEntries.length % colors.length];
+    await db.collection("travelEntries").add(entry);
 
-    travelEntries.push({
-        name,
-        from,
-        to,
-        source,
-        destination,
-        color
-    });
-
-    const month = new Date(from).getMonth();
-    const year = new Date(from).getFullYear();
-
-    generateCalendar(month, year);
-    renderSidebar();
-    drawAllRoutes();
+    form.reset();
 });
 
-// Initialize calendar with current month
-const now = new Date();
-generateCalendar(now.getMonth(), now.getFullYear());
+// -------------------------
+// Login / Logout
+// -------------------------
+document.getElementById("loginBtn").addEventListener("click", () => {
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    auth.signInWithEmailAndPassword(email, password)
+        .then(userCred => {
+            currentUser = userCred.user;
+            console.log("Logged in as", currentUser.email);
+        })
+        .catch(err => console.error(err));
+});
+
+document.getElementById("logoutBtn").addEventListener("click", () => {
+    auth.signOut().then(() => {
+        currentUser = null;
+        console.log("Logged out");
+    });
+});
+
+
+
 </script>
 
 </body>
