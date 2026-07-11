@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>California Travel Planner</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
@@ -135,6 +136,45 @@
     border: 1px solid #ddd;
     background-color: #f9f9f9;
     }
+	
+	/* Target screens smaller than a standard tablet (768px wide) */
+@media (max-width: 768px) {
+    /* 1. Stack your main layout containers vertically */
+    .app-container, .main-layout { 
+        display: flex;
+        flex-direction: column;
+        padding: 10px;
+    }
+
+    /* 2. Force full width on layout sections (Form, Calendar, Map, List) */
+    .form-section, .calendar-section, .map-section, .trips-list {
+        width: 100% !important;
+        margin-bottom: 20px;
+    }
+
+    /* 3. Make the calendar numerical grid dynamic and easily tappable */
+    #calendarGrid {
+        grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
+        gap: 4px;
+    }
+
+    .day {
+        height: auto;
+        aspect-ratio: 1 / 1; /* Keeps calendar grid tiles perfectly square on mobile layout scales */
+        font-size: 14px;
+        padding: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* 4. Optimize form controls for easier touch access */
+    input, select, button {
+        font-size: 16px !important; /* Forces iOS to stop layout zooming when input fields focus */
+        padding: 12px !important;    /* Makes touch hit-targets larger for fingers */
+        width: 100%;
+    }
+}
 
     .day:hover {
         background: #e6f2ff;
@@ -517,7 +557,15 @@ const colors = [
 // Map initialization
 // -------------------------
 let map = L.map('map').setView([37.5, -119.5], 6);
-
+window.addEventListener("resize", () => {
+    if (map) {
+        // Safe timeout gives the CSS media queries 300ms to finish 
+        // stacking into mobile view before updating the map size
+        setTimeout(() => { 
+            map.invalidateSize(); 
+        }, 300);
+    }
+});
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 18
 }).addTo(map);
@@ -726,12 +774,32 @@ function generateCalendar(month, year) {
                     ${entry.from} to ${entry.to}
                 `;
                 cell.appendChild(tooltip);
+				
+            }
+        });
+        cell.addEventListener('click', (e) => {
+            const tooltip = cell.querySelector('.tooltip');
+            if (tooltip) {
+                // Check current state (accounting for blank initial styles)
+                const isVisible = tooltip.style.display === 'block';
+                
+                // Hide all other active tooltips across the calendar
+                document.querySelectorAll('.tooltip').forEach(t => t.style.display = 'none');
+                
+                // Toggle this specific one
+                tooltip.style.display = isVisible ? 'none' : 'block';
+                e.stopPropagation(); 
             }
         });
         
+        // Finally, add the completely configured cell to your calendar grid
         grid.appendChild(cell);
     }
 }
+// Global click handler to dismiss open tooltips when tapping empty spaces (Keep this at the root of your file)
+document.addEventListener('click', () => {
+    document.querySelectorAll('.tooltip').forEach(t => t.style.display = 'none');
+});
 document.getElementById("nextMonth").addEventListener("click", () => {
     currentMonth++;
     if (currentMonth > 11) {
@@ -923,6 +991,20 @@ function toggleAdminControls(isAdmin) {
         btn.style.display = isAdmin ? "inline-block" : "none";
     });
 }
+document.addEventListener('keydown', (event) => {
+    // Block F12
+    if (event.key === 'F12') {
+        event.preventDefault();
+    }
+    // Block Ctrl+Shift+I (Chrome/Edge/Firefox) or Cmd+Opt+I (Mac)
+    if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === 'I') {
+        event.preventDefault();
+    }
+    // Block Ctrl+U (View Source)
+    if ((event.ctrlKey || event.metaKey) && event.key === 'u') {
+        event.preventDefault();
+    }
+});
 </script>
 
 </body>
