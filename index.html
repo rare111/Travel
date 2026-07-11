@@ -117,24 +117,23 @@
     .calendar-card h3 {
         text-align: center;
         margin-top: 0;
-        color: #007bff;
+        color: black;
     }
 
     .calendar-grid {
+        display:grid;
         display: grid;
-        grid-template-columns: repeat(7, 1fr);
-        gap: 6px;
-        margin-top: 10px;
+    grid-template-columns: repeat(7, 1fr); /* Forms the 7 days of the week */
+    gap: 5px;
+    margin-top: 10px;
+    min-height: 200px;
     }
 
     .day {
-        padding: 8px;
-        background: #f8f9fc;
-        border-radius: 8px;
-        text-align: center;
-        font-size: 12px;
-        position: relative;
-        transition: 0.2s;
+        padding: 10px;
+    text-align: center;
+    border: 1px solid #ddd;
+    background-color: #f9f9f9;
     }
 
     .day:hover {
@@ -176,8 +175,11 @@
     #map {
         height: 350px;
         width: 100%;
-        border-radius: 12px;
+        
         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+		margin-top: 15px;
+    border-radius: 8px;
+    z-index: 1;
     }
 
     .sidebar {
@@ -251,15 +253,105 @@
         font-size: 11px;
         border-radius: 6px;
     }
+	/* This styles the outer dimming background overlay */
+/* This styles the outer dimming background overlay */
+#loginModal {
+    display: none;             /* Keeps it completely hidden initially */
+    position: fixed;           /* Locks it relative to the browser window */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent dim effect */
+    justify-content: center;   /* Centers the login box horizontally */
+    align-items: center;       /* Centers the login box vertically */
+    z-index: 99999;            /* Higher than Leaflet map to guarantee visibility */
+}
+
+/* Optional styling to make the inside card look clean */
+.modal-content {
+    background-color: white;
+    padding: 30px;
+    border-radius: 8px;
+    width: 300px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    position: relative;
+}
+	
+	.login-card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+        .login-card h2 { margin-bottom: 20px; color: #333; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; color: #666; }
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .login-btn:hover { background-color: #0056b3; }
+        .error-msg { color: red; font-size: 14px; margin-top: 10px; display: none; }
 </style>
 </head>
 
 
 <body>
-<input id="email" type="email" placeholder="Admin email">
-<input id="password" type="password" placeholder="Password">
-<button id="loginBtn">Login</button>
-<button id="logoutBtn">Logout</button>
+<!-- 1. Top Right Login Button -->
+<div style="position: absolute; top: 15px; right: 15px; z-index: 1000;">
+    <button id="adminLoginBtn" style="padding: 8px 16px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">
+        Admin Login
+    </button>
+</div>
+
+<!-- 2. Hidden Login Modal Overlay -->
+<!-- The Popup Overlay -->
+<div id="loginModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 99999; justify-content: center; align-items: center;">
+    
+    <!-- The White Card Inside -->
+    <div style="background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); width: 100%; max-width: 320px; position: relative; color: #333; text-align: left;">
+        
+        <!-- Close Button (X) -->
+        <span id="closeModal" style="position: absolute; top: 10px; right: 15px; cursor: pointer; font-size: 20px; color: #666; font-weight: bold;">&times;</span>
+        
+        <!-- Header -->
+        <h3 style="margin-top: 0; margin-bottom: 20px; font-family: Arial, sans-serif; font-size: 22px; font-weight: bold;">Admin Login</h3>
+        
+        <!-- Email Input Field -->
+        <div style="margin-bottom: 15px;">
+            <label style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: 600;">Email</label>
+            <input type="email" id="adminEmail" placeholder="admin@example.com" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 14px;">
+        </div>
+        
+        <!-- Password Input Field -->
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: 600;">Password</label>
+            <input type="password" id="adminPassword" placeholder="••••••••" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 14px;">
+        </div>
+        
+        <!-- Submit Button -->
+        <button id="submitLogin" style="width: 100%; padding: 12px; background-color: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold;">Login</button>
+        
+        <!-- Error Message Placeholder -->
+        <div id="errorMsg" style="color: red; font-size: 13px; margin-top: 10px; display: none; text-align: center;"></div>
+    </div>
+</div>
 
 <div class="header">🌎 California Travel Planner</div>
 
@@ -353,17 +445,14 @@
     <div class="right-side">
         <div class="calendar-card">
             <div class="cal-header">
-                <button id="prevMonth" class="cal-btn">&#8592;</button>
-                <h3 id="calTitle">Your Travel Calendar</h3>
-                <button id="nextMonth" class="cal-btn">&#8594;</button>
+                <button id="prevMonth" class="cal-btn">Prev</button>
+                <h3 id="calTitle">Calendar</h3>
+                <button id="nextMonth" class="cal-btn">Next</button>
             </div>
-
             <div class="calendar-grid" id="calendarGrid"></div>
         </div>
-
-        <div id="map"></div>
+<div id="map"></div>
     </div>
-
     <!-- SIDEBAR -->
     <div class="sidebar">
         <h3>Trips (California)</h3>
@@ -375,24 +464,22 @@
 <div id="output"></div>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+
+<!-- IMPORTANT: Your main.js goes here
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
-
-<!-- IMPORTANT: Your main.js goes here -->
-
+ -->
 
 
 
-<script type="module">
-  // Import the functions you need from the SDKs you need
-  //import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
-  //import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-analytics.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
 
-  // Your web app's Firebase configuration
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+<script>
+  
   const firebaseConfig = {
     apiKey: "AIzaSyBfeuiq3fyvlz2kESAwWLpn3g3Go7CbgUo",
     authDomain: "travel-planner-31a14.firebaseapp.com",
@@ -406,10 +493,12 @@
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
   const auth = firebase.auth();
+  
+  
 </script>
 
 
-<script src="main.js">
+<script>
 // -------------------------
 // Global variables
 // -------------------------
@@ -513,6 +602,7 @@ async function drawAllRoutes() {
         map.fitBounds(group.getBounds());
     }
 }
+console.log("travelEntries:", travelEntries);
 // -------------------------
 // Sidebar rendering
 // -------------------------
@@ -588,52 +678,79 @@ function editEntry(index) {
 function generateCalendar(month, year) {
     const grid = document.getElementById("calendarGrid");
     grid.innerHTML = "";
-
+    
     document.getElementById("calTitle").textContent =
         new Date(year, month).toLocaleString('default', { month: 'long' }) + " " + year;
-
+        
     const firstDay = new Date(year, month, 1).getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
-
+    
+    // Render empty slots for the first week alignment
     for (let i = 0; i < firstDay; i++) {
         grid.appendChild(document.createElement("div"));
     }
-
+    
+    // Render actual days
     for (let day = 1; day <= daysInMonth; day++) {
         const cell = document.createElement("div");
         cell.classList.add("day");
         cell.textContent = day;
-
+        
         const cellDate = new Date(year, month, day);
-
+        
+        // travelEntries is global data array
         travelEntries.forEach(entry => {
-            const from = new Date(entry.from);
-            const to = new Date(entry.to);
-
+            // SAFETY CHECK: If dates are missing or aren't strings, skip to prevent a crash
+            if (!entry.from || !entry.to || typeof entry.from !== 'string' || typeof entry.to !== 'string') {
+                return; 
+            }
+			
+            const [fromYear, fromMonth, fromDay] = entry.from.split('-').map(Number);
+            const [toYear, toMonth, toDay] = entry.to.split('-').map(Number);
+            
+            const from = new Date(fromYear, fromMonth - 1, fromDay);
+            const to = new Date(toYear, toMonth - 1, toDay);
+            
+            // Highlight matching dates
             if (cellDate >= from && cellDate <= to) {
                 cell.classList.add("highlight");
                 cell.style.backgroundColor = entry.color;
                 cell.style.color = "white";
-
+                
                 const tooltip = document.createElement("div");
                 tooltip.classList.add("tooltip");
-                tooltip.innerHTML =
-                    `<strong>${entry.name}</strong><br>
-                     ${entry.number}<br>
-                     ${entry.source} → ${entry.destination}<br>
-                     ${entry.from} to ${entry.to}`;
-
+                tooltip.innerHTML = `
+                    <strong>${entry.name}</strong><br>
+                    ${entry.number}<br>
+                    ${entry.source} to ${entry.destination}<br>
+                    ${entry.from} to ${entry.to}
+                `;
                 cell.appendChild(tooltip);
             }
         });
-
+        
         grid.appendChild(cell);
     }
 }
+document.getElementById("nextMonth").addEventListener("click", () => {
+    currentMonth++;
+    if (currentMonth > 11) {
+        currentMonth = 0;
+        currentYear++;
+    }
+    generateCalendar(currentMonth, currentYear);
+});
+document.getElementById("prevMonth").addEventListener("click", () => {
+    currentMonth--;
+    if (currentMonth < 0) {
+        currentMonth = 11;
+        currentYear--;
+    }
+    generateCalendar(currentMonth, currentYear);
+});
 
-// -------------------------
 // Firestore real-time listener
-// -------------------------
+
 function subscribeEntries() {
     db.collection("travelEntries")
       .orderBy("from")
@@ -647,8 +764,16 @@ function subscribeEntries() {
           renderSidebar();
           drawAllRoutes();
 
-          const now = new Date();
-          generateCalendar(now.getMonth(), now.getFullYear());
+          //const now = new Date();
+          //generateCalendar(now.getMonth(), now.getFullYear());
+		  
+		
+const today = new Date();
+let currentMonth = today.getMonth();
+let currentYear = today.getFullYear();
+
+// CALL THE FUNCTION TO DRAW THE CALENDAR
+generateCalendar(currentMonth, currentYear);
       });
 }
 
@@ -661,12 +786,16 @@ document.getElementById("travelForm").addEventListener("submit", async function 
     event.preventDefault();
 
     const form = this;
+	//const from = entry.from.toDate ? entry.from.toDate() : new Date(entry.from);
+//const to = entry.to.toDate ? entry.to.toDate() : new Date(entry.to);
 
     const entry = {
         name: form.name.value,
         number: form.number.value,
         from: form.fromDate.value,
         to: form.toDate.value,
+		
+		
         source: form.source.value,
         destination: form.destination.value,
         color: colors[Math.floor(Math.random() * colors.length)],
@@ -682,7 +811,7 @@ document.getElementById("travelForm").addEventListener("submit", async function 
 // -------------------------
 // Login / Logout
 // -------------------------
-document.getElementById("loginBtn").addEventListener("click", () => {
+/*document.getElementById("loginBtn").addEventListener("click", () => {
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
 
@@ -699,10 +828,101 @@ document.getElementById("logoutBtn").addEventListener("click", () => {
         currentUser = null;
         console.log("Logged out");
     });
+});*/
+
+// Keep track of the current date globally
+const today = new Date();
+let currentMonth = today.getMonth();
+let currentYear = today.getFullYear();
+currentUser = null;
+
+// DOM Elements
+const loginModal = document.getElementById("loginModal");
+const adminLoginBtn = document.getElementById("adminLoginBtn");
+const closeModal = document.getElementById("closeModal");
+const submitLogin = document.getElementById("submitLogin");
+const errorMsg = document.getElementById("errorMsg");
+
+// 1. Firebase Auth Real-Time Observer (Handles verification & UI updates)
+firebase.auth().onAuthStateChanged(async (user) => {
+    if (user) {
+        currentUser = user; 
+    if (adminLoginBtn) {
+            adminLoginBtn.textContent = "Logout";
+        }    
+        try {
+            // Get the role just to know if we should show/hide "Delete" buttons in the UI
+            const doc = await firebase.firestore().collection("users").doc(user.uid).get();
+            const data = doc.data();
+            currentUser.role = (data && data.role) ? data.role : "user";
+        } catch (error) {
+            console.log("Could not fetch explicit role, defaulting to standard user.");
+            currentUser.role = "user";
+        }
+    } else {
+        currentUser = null;
+        
+        // 3. CHANGE TEXT BACK TO ADMIN LOGIN WHEN SIGNED OUT
+        if (adminLoginBtn) {
+            adminLoginBtn.textContent = "Admin Login";
+        }
+    }
+
+    // ALWAYS load the map and calendar data for everyone right away!
+generateCalendar(currentMonth, currentYear);
+    // Always draw/refresh the calendar grid structure
+    
 });
 
+// 2. Dual-Purpose Button Action (Handles Popup open OR Logout execution)
+adminLoginBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    if (auth.currentUser) {
+        // If a user is currently signed in, clicking this button LOGS THEM OUT
+        auth.signOut().then(() => {
+            alert("Logged out successfully.");
+        }).catch((error) => {
+            console.error("Logout Error:", error);
+        });
+    } else {
+        // If logged out, clicking this button OPENS THE POPUP
+        loginModal.style.setProperty("display", "flex", "important");
+        errorMsg.style.display = "none";
+    }
+});
 
+// 3. Handle Admin Authentication Request
+submitLogin.addEventListener("click", () => {
+    const email = document.getElementById("adminEmail").value;
+    const password = document.getElementById("adminPassword").value;
 
+    auth.signInWithEmailAndPassword(email, password)
+        .then(() => {
+            // Clear inputs and hide overlay card on success
+            loginModal.style.display = "none";
+            document.getElementById("adminEmail").value = "";
+            document.getElementById("adminPassword").value = "";
+        })
+        .catch((error) => {
+            // Display error messages (e.g., wrong password, user not found) inside the modal
+            errorMsg.textContent = error.message;
+            errorMsg.style.display = "block";
+        });
+});
+
+// 4. Modal Window Close Handlers
+closeModal.addEventListener("click", () => { loginModal.style.display = "none"; });
+window.addEventListener("click", (e) => {
+    if (e.target === loginModal) { loginModal.style.display = "none"; }
+});
+
+// 5. Helper function to toggle functional elements (like Edit/Delete buttons)
+function toggleAdminControls(isAdmin) {
+    const editButtons = document.querySelectorAll(".edit-btn, .delete-btn");
+    editButtons.forEach(btn => {
+        btn.style.display = isAdmin ? "inline-block" : "none";
+    });
+}
 </script>
 
 </body>
